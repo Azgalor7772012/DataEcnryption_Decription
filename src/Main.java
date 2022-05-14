@@ -6,6 +6,8 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
+
+        // Булеан переменные для логических циклов
         String mode = "enc";
         int key = 0;
 
@@ -19,6 +21,7 @@ public class Main {
 
         String alg = "shift";
 
+        // Проверяем входные данные из аргументов командной строки
         for (int i = 0; i < args.length; i++) {
             if (args[i].equals("-mode")) {
                 mode = args[i + 1];
@@ -42,12 +45,14 @@ public class Main {
             }
         }
 
+        // В случае расшифровки сдвигаем в другую сторону
         if (mode.equals("dec")) {
             key = -key;
         }
 
         Context context = null;
 
+        // Шаблон Стратегия
         if (isData) {
             context = new Context(new DataCypher());
             context.toEncrypt(mode, inPath, outPath, data, alg, key);
@@ -65,7 +70,7 @@ public class Main {
 
 
 }
-
+// Шаблон стратегия
 interface Encrypt {
     void cypher(String mode, String inPath, String outPath, String data, String alg, int key);
 }
@@ -91,8 +96,9 @@ class DataCypher implements Encrypt {
 
     @Override
     public void cypher(String mode, String inPath, String outPath, String data, String alg, int key) {
+        // Разбиваем входные данные на символы в массиве для удобства работы с ними
         char[] dataToChars = data.toCharArray();
-
+        //Проверяем какой вид шифрования
         if (alg.equals("shift")) {
             swifter.swift(dataToChars, answerString, key);
         } else {
@@ -101,7 +107,7 @@ class DataCypher implements Encrypt {
                 answerString.append((char) decryptedChar);
             }
         }
-
+        //Проверяем куда нужно выгрузить получившиеся данные
         if (!outPath.equals(" ")) {
             try (PrintWriter printWriter = new PrintWriter(outPath)) {
                 printWriter.println(answerString);
@@ -123,16 +129,16 @@ class FileCypher implements Encrypt {
     @Override
     public void cypher(String mode, String inPath, String outPath, String data, String alg, int key) {
         File file = new File(inPath);
-
+        // Сканируем данные из файла
         String phrase = " ";
         try (Scanner scanner = new Scanner(file)) {
             phrase = scanner.nextLine();
         } catch (FileNotFoundException e) {
             System.out.println("Error");
         }
-
+        // Разбиваем входные данные на символы в массиве для удобства работы с ними
         char[] fileChars = phrase.toCharArray();
-
+        //Проверяем какой вид шифрования
         if (alg.equals("shift")) {
             swifter.swift(fileChars, answerString, key);
         } else {
@@ -141,7 +147,7 @@ class FileCypher implements Encrypt {
                 answerString.append((char) decryptedChar);
             }
         }
-
+        //Проверяем куда нужно выгрузить получившиеся данные
         if (!outPath.equals(" ")) {
             try (PrintWriter printWriter = new PrintWriter(outPath)) {
                 printWriter.println(answerString);
@@ -153,7 +159,7 @@ class FileCypher implements Encrypt {
         }
     }
 }
-
+// Случай, когда входные данные равно Space
 class SpaceCypher implements Encrypt {
 
     int decryptedChar;
@@ -161,7 +167,7 @@ class SpaceCypher implements Encrypt {
     @Override
     public void cypher(String mode, String inPath, String outPath, String data, String alg, int key) {
         decryptedChar = ' ' + key;
-
+        //Проверяем куда нужно выгрузить получившиеся данные
         if (!outPath.equals(" ")) {
             try (PrintWriter printWriter = new PrintWriter(outPath)) {
                 printWriter.println((char) decryptedChar);
@@ -173,7 +179,7 @@ class SpaceCypher implements Encrypt {
         }
     }
 }
-
+// Метод шифрования при котором шифруется не дальше Uppercase & Loswercase символов английского алфавита в Unicode
 class Swifter {
 
     void swift (char[] dataToChars, StringBuilder answerString, int key) {
